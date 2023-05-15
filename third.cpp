@@ -1,7 +1,6 @@
 #include <iostream>
 #include <cpr/cpr.h>
 #include <map>
-#include<vector>
 
 const std::string http = "http://httpbin.org/";
 
@@ -17,7 +16,6 @@ void regist(std::string& request)
 int main()
 {
     std::map<std::string, std::string> arguments;
-    cpr::Response r;
     std::string request;
     std::cout << "The program sends a get or post request with arguments." << std::endl;
 
@@ -33,14 +31,14 @@ int main()
 
         getline(std::cin, arguments[request]);
     }
-    std::string requests;
+
+    cpr::Response r;
     if(request == "get")
     {
         cpr::Parameters parameters;
         for( auto it = arguments.begin(); it != arguments.end(); ++it )
             parameters.Add({it->first, it->second});
-        r = cpr::Get(cpr::Url(http+request),
-                     parameters);
+        r = cpr::Get(cpr::Url(http+request), parameters);
     }
 
     else if(request == "post")
@@ -48,12 +46,14 @@ int main()
         cpr::Payload pay{};
         for(auto it = arguments.begin(); it != arguments.end(); ++it)
             pay.Add(cpr::Pair(it->first, it->second));
-//            pay = cpr::Payload {cpr::Pair(it->first, it->second)};
 
         r = cpr::Post(cpr::Url(http+request), pay);
     }
 
-    std::cout << r.status_code;
-    std::cout << r.text;
+    if(r.status_code == 200)
+        std::cout << r.text;
+    else
+        std::cerr << "Error!" << std::endl;
+
     return 0;
 }
